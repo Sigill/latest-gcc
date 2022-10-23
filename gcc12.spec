@@ -1,6 +1,6 @@
 # Build with rpmbuild -bb gcc12.spec --define "_sourcedir $PWD/root" --verbose
 %define name gcc12
-%define version 2.0
+%define version 12.2.0
 %define release 1
 
 %define _binary_payload w4.gzdio
@@ -11,6 +11,7 @@ Release: %{release}
 Summary: The Low Level Virtual Machine
 Group: Development/Libraries
 License: BSD
+Requires: glibc-devel binutils
 
 %description
 The gcc package contains the GNU Compiler Collection version 12.

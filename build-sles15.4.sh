@@ -10,7 +10,7 @@ PACKAGE_NAME=gcc$GCC_VERSION_MAJOR
 
 mkdir -p {cache,output}/sles15.4
 
-docker run -i --rm \
+time docker run -i --rm \
     -v $PWD:/data:ro \
     -v $SRC:/src:ro \
     -v $PWD/cache/sles15.4:/cache \
