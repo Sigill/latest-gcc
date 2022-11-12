@@ -8,6 +8,10 @@ SRC=
 VERSION=
 J=
 
+function usage() {
+  echo "$0 --env <sles15.3|sles15.4|debian11> --source <source directory> -v|--version <version> [-j <number>]"
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --env)
@@ -26,8 +30,13 @@ while [[ $# -gt 0 ]]; do
       J="$2"
       shift 2
       ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
     *)
       >&2 echo "Unknown argument $1"
+      >&2 usage
       exit 1
       ;;
   esac
@@ -66,5 +75,5 @@ set -e
   ${CXX:+--cxx} $CXX \
   ${J:+-j} $J
 
-./build-package.sh --package-type $PACKAGETYPE --build /build --output /output --version $VERSION
+./build-package.sh --package-type $PACKAGETYPE --build /build --output /output --version $VERSION --test-install
 EOF

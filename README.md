@@ -2,24 +2,12 @@
 
 Scripts to build recent versions of GCC for various Linux distributions.
 
-## Debian 11
+## SLES15.x/Debian 11
 
 ```sh
-git clone --depth 1 -b release/gcc-x.y.z --single-branch git://gcc.gnu.org/git/gcc.git gcc-x.y.z
+git clone --depth 1 -b releases/gcc-x.y.z --single-branch git://gcc.gnu.org/git/gcc.git gcc-x.y.z
 
-# Edit buld-debian11.sh accordingly.
-
-./build-debian11.sh
-```
-
-## SLES 15.x
-
-```sh
-git clone --depth 1 -b release/gcc-x.y.z --single-branch git://gcc.gnu.org/git/gcc.git gcc-x.y.z
-
-# Edit buld-sles15.x.sh accordingly.
-
-./build-sles15.x.sh
+./build-containerized.sh --env sles15.3|sles15.4|debian11 --source gcc-x.y.z -v x.y.z -j N
 ```
 
 ## License

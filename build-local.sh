@@ -12,6 +12,10 @@ CC=
 CXX=
 J=
 
+function usage() {
+  echo "$0 --source <source-dir> --build <build-dir> --cache <cache dir> -v|--version <version> [--cc <c compiler>] [--cxx <cxx compiler>] [-j <number>]"
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --source)
@@ -42,8 +46,13 @@ while [[ $# -gt 0 ]]; do
       J="$2"
       shift 2
       ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
     *)
       >&2 echo "Unknown argument $1"
+      >&2 usage
       exit 1
       ;;
   esac
@@ -72,5 +81,3 @@ CC="ccache ${CC:-gcc}" CXX="ccache ${CXX:-g++}" "$SRC/configure" \
     --disable-nls
 
 make -j${J:-$(nproc)}
-
-make DESTDIR="$BLD/root" -j${J:-$(nproc)} install-strip

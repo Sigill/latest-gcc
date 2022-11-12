@@ -10,6 +10,10 @@ VERSION=
 PACKAGETYPE=
 TESTINSTALL=
 
+function usage() {
+  echo "$0 --package-type <rpm|deb> --build <build dir> -v|--version <version> [--output <output directory>] [--test-install]"
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --package-type)
@@ -32,8 +36,13 @@ while [[ $# -gt 0 ]]; do
       TESTINSTALL=YES
       shift
       ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
     *)
       >&2 echo "Unknown argument $1"
+      >&2 usage
       exit 1
       ;;
   esac
@@ -41,7 +50,6 @@ done
 
 require_arg "$PACKAGETYPE" "Package type"
 require_arg "$BLD" "Build directory"
-require_arg "$OUT" "Output directory"
 require_arg "$VERSION" "Version"
 
 VERSION_MAJOR=${VERSION%%.*}
@@ -50,7 +58,7 @@ PACKAGE_NAME=gcc$VERSION_MAJOR
 
 function hello_world() {
   "$PREFIX/bin/g++" -std=c++2b -fopenmp "$WORKSPACE/test.cpp" -o /tmp/a.out
-  /tmp/a.out
+  LD_LIBRARY_PATH=$PREFIX/lib64:$LD_LIBRARY_PATH /tmp/a.out
 }
 
 function build_rpm() {
@@ -59,20 +67,27 @@ function build_rpm() {
     --define "_binary_payload w4.gzdio" \
     --define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
     --define "_rpmdir /tmp/RPMS" \
-    --define "_sourcedir $BLD/root" \
+    --define "_sourcedir $BLD" \
     --define "_name $PACKAGE_NAME" \
     --define "_prefix $PREFIX" \
     --define "_version $VERSION" \
     --define "_release 1" \
     --verbose
 
-  [ "$TESTINSTALL" = YES ] && rpm -ivh /tmp/RPMS/*.rpm && hello_world
+  if [ "$TESTINSTALL" = YES ]; then
+    rpm -ivh /tmp/RPMS/*.rpm
+    hello_world
+  fi
 
-  mv /tmp/RPMS/*.rpm "$OUT"
+  if [ -n "$OUT" ]; then
+    mv /tmp/RPMS/*.rpm "$OUT"
+  fi
 }
 
 function build_deb() {
-  mkdir "$BLD/root/DEBIAN"
+  make -C "$BLD" DESTDIR="$BLD/root" install-strip
+
+  mkdir -p "$BLD/root/DEBIAN"
   cat << EOF > "$BLD/root/DEBIAN/control"
 Package: gcc$VERSION_MAJOR
 Version: $VERSION-1
@@ -85,9 +100,14 @@ EOF
 
   dpkg-deb --build "$BLD/root" /tmp
 
-  [ "$TESTINSTALL" = YES ] && dpkg -i /tmp/*.deb && hello_world
+  if [ "$TESTINSTALL" = YES ]; then
+    dpkg -i /tmp/*.deb
+    hello_world
+  fi
 
-  mv /tmp/*.deb "$OUT/"
+  if [ -n "$OUT" ]; then
+    mv /tmp/*.deb "$OUT/"
+  fi
 }
 
 if [ "$PACKAGETYPE" = rpm ]; then

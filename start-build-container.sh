@@ -7,6 +7,10 @@ source $WORKSPACE/utils.sh
 ID=
 SRC=
 
+function usage() {
+  echo "$0 --env <sles15.3|sles15.4|debian11> -s|--source <source dir> [-- <additional 'docker run' params>]"
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --env)
@@ -21,8 +25,13 @@ while [[ $# -gt 0 ]]; do
       shift
       break
       ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
     *)
       >&2 echo "Unknown argument $1"
+      >&2 usage
       exit 1
       ;;
   esac

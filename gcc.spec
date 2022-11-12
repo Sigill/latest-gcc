@@ -11,8 +11,7 @@ GCC, the GNU Compiler Collection.
 
 
 %install
-mkdir -p %{buildroot}
-cp -r $(dirname %{_sourcedir}%{_prefix}) %{buildroot}/
+make -C "%{_sourcedir}" DESTDIR="%{buildroot}" install-strip
 
 
 %files
