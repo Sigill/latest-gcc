@@ -2,11 +2,12 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": [],
-    "module": "esnext",
+    "module": "nodenext",
     "rootDir": "./",
     "moduleResolution": "nodenext",
     "removeComments": true,
     "inlineSourceMap": true,
+    "inlineSources": true,
     "newLine": "lf",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

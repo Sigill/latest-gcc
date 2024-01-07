@@ -51,6 +51,11 @@ if [[ "$ENV" =~ ^sles ]]; then
   CXX=g++-11
 fi
 
+if [[ "$ENV" =~ ^sles15.5 ]]; then
+  CC=gcc-12
+  CXX=g++-12
+fi
+
 if [[ "$ENV" =~ ^sles ]]; then
   PACKAGETYPE=rpm
 else
@@ -64,16 +69,26 @@ mkdir -p {cache,output}/$ENV
 ./start-build-container.sh --source "$SRC" --env $ENV -- \
   -i --rm --workdir /data $ENV-gcc-builder \
   bash << EOF
+
+function build {
+  ./build-local.sh \
+    --source /src \
+    --build /build \
+    --cache /cache \
+    --version $VERSION \
+    ${CC:+--cc} $CC \
+    ${CXX:+--cxx} $CXX \
+    ${J:+-j} $J
+}
+
+function buildpackage {
+  ./build-package.sh --package-type $PACKAGETYPE --build /build --output /output --version $VERSION --test-install
+}
+
 set -e
 
-./build-local.sh \
-  --source /src \
-  --build /build \
-  --cache /cache \
-  --version $VERSION \
-  ${CC:+--cc} $CC \
-  ${CXX:+--cxx} $CXX \
-  ${J:+-j} $J
+build
 
-./build-package.sh --package-type $PACKAGETYPE --build /build --output /output --version $VERSION --test-install
+buildpackage
+
 EOF
